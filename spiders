@@ -1,1 +1,23 @@
+import scrapy
+from scrapy.spider import BaseSpider
+from scrapy import Spider
+#from scrapy.spiders import CrawlSpider
+#from scrapy.spiders import Spider
+#from scrapy.selector import HtmlXPathSelector
+from jobs.items import JobsItem
 
+class MySpider(BaseSpider):
+    name = "job"
+    allowed_domains = ["https://www.vietnamworks.com/"]
+    start_urls = ["https://www.vietnamworks.com/marketing+nganh-ban-hang-tai-ha-noi-i33v24-vn"]
+
+    def parse(self, response):
+        hxs = HtmlXPathSelector(response)
+        titles = hxs.xpath("//span[@class='job-title priorityJob'or@class= 'job-title']  ")
+        items = []
+        for titles in titles:
+            item = JobsItem()
+            item["title"] = titles.select("a/text()").extract()
+            item["link"] = titles.select("a/@href").extract()
+            items.append(item)
+        return items
